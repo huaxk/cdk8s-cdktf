@@ -1,6 +1,11 @@
 {
   "dependencies": [
     {
+      "name": "@cdktf/provider-kubernetes",
+      "version": "2.0.0",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "version": "^27",
       "type": "build"
@@ -21,13 +26,22 @@
       "type": "build"
     },
     {
+      "name": "cdk8s-cli",
+      "type": "build"
+    },
+    {
+      "name": "cdk8s",
+      "version": "2.1.6",
+      "type": "build"
+    },
+    {
       "name": "cdktf",
-      "version": "0.8.3",
+      "version": "0.12.0",
       "type": "build"
     },
     {
       "name": "constructs",
-      "version": "10.0.12",
+      "version": "10.0.107",
       "type": "build"
     },
     {
@@ -79,7 +93,7 @@
     },
     {
       "name": "npm-check-updates",
-      "version": "^12",
+      "version": "^15",
       "type": "build"
     },
     {
@@ -105,13 +119,28 @@
       "type": "build"
     },
     {
+      "name": "yaml",
+      "version": "1.10.2",
+      "type": "bundled"
+    },
+    {
+      "name": "@cdktf/provider-kubernetes",
+      "version": "^2.0.0",
+      "type": "peer"
+    },
+    {
+      "name": "cdk8s",
+      "version": ">=2.1.6",
+      "type": "peer"
+    },
+    {
       "name": "cdktf",
-      "version": "^0.8.3",
+      "version": "^0.12.0",
       "type": "peer"
     },
     {
       "name": "constructs",
-      "version": "^10.0.12",
+      "version": "^10.0.107",
       "type": "peer"
     }
   ],

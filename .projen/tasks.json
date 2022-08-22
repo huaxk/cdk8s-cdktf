@@ -130,6 +130,15 @@
         }
       ]
     },
+    "import": {
+      "name": "import",
+      "steps": [
+        {
+          "exec": "cd ./test && cdk8s import k8s --language typescript"
+        }
+      ],
+      "condition": "[ ! -f \"test/imports/k8s.ts\" ]"
+    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package",
@@ -203,6 +212,9 @@
       "description": "Run tests",
       "steps": [
         {
+          "spawn": "import"
+        },
+        {
           "exec": "jest --passWithNoTests --all --updateSnapshot"
         },
         {
@@ -255,19 +267,19 @@
           "exec": "pnpm update npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='cdktf,constructs'"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='cdktf,constructs'"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='cdktf,constructs'"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='cdktf,constructs'"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='cdktf,constructs'"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
         },
         {
           "exec": "pnpm i --no-frozen-lockfile"
