@@ -1,73 +1,110 @@
-import { Manifest, ManifestConfig } from '@cdktf/provider-kubernetes';
-import { App, Chart } from 'cdk8s';
+import { Manifest } from '@cdktf/provider-kubernetes';
+import { ApiObject, App, Chart, ChartProps, DependencyGraph } from 'cdk8s';
+import { TerraformMetaArguments } from 'cdktf';
 import { Construct } from 'constructs';
-import * as yaml from 'yaml';
+import debug from 'debug';
 
-type ManifestOption = Omit<ManifestConfig, 'manifest'>;
+const dbg = debug('cdk8s-cdktf');
+debug.enable('cdk8s-cdktf');
 
-export class Cdk8sConstructBase extends Construct {
-  private _name: string;
-  private _options: ManifestOption;
-  private _app: App;
+type ManifestOption = TerraformMetaArguments;
+
+export interface ChartManifestOptions extends ChartProps, ManifestOption {}
+
+export class Cdk8s extends Construct {
   private _manifests: Manifest[] = [];
+  private _chart: Chart;
 
-  constructor(scope: Construct, name: string, options: ManifestOption) {
+  constructor(
+    scope: Construct,
+    name: string,
+    chartType: typeof Chart,
+    options?: ChartManifestOptions,
+  ) {
     super(scope, name);
-    this._name = name;
-    this._options = options;
-    this._app = new App();
-  }
 
-  public toCdktfManifests() {
-    const yamlmanifests = yaml.parseAllDocuments(this.app.synthYaml());
+    this._chart = new chartType(new App(), name, options as ChartProps);
 
-    yamlmanifests.forEach((yamlManifest) => {
-      const jsonManifest = yamlManifest.toJSON();
-      if (!jsonManifest) return;
+    const map: Map<string, Manifest> = new Map(); // map ApiObject to Manifest for transforming dependencies, the ApiObject node id as key, Manifest as value
+
+    validate(this.chart);
+    dbg(
+      'all nodes:',
+      this.chart.node.findAll().map((x) => x.node.id),
+    );
+
+    const apiObjects = chartToKube(this.chart);
+    dbg(
+      'apiobjects:',
+      apiObjects.map((x) => x.node.id),
+    );
+
+    apiObjects.forEach((apiObject) => {
+      const jsonManifest = apiObject.toJson();
+
+      const manifestDeps = options?.dependsOn || [];
+
       const type = `${jsonManifest.apiVersion}-${jsonManifest.kind}`;
-      // const namespace = jsonManifest.metadata.namespace || 'default';
-      const namespace = jsonManifest.metadata.namespace
+      const namespaceSuffix = jsonManifest.metadata.namespace
         ? '-' + jsonManifest.metadata.namespace
         : '';
       const uniqueId = `${
         jsonManifest.metadata.name || jsonManifest.metadata.generatename
-      }${namespace}`;
+      }${namespaceSuffix}`;
+      const manifestName = `${name}-${type}-${uniqueId}`;
 
-      const manifestConfig = this._options;
-      this.manifests.push(
-        new Manifest(this, `${this._name}-${type}-${uniqueId}`, {
-          ...manifestConfig,
-          manifest: jsonManifest,
-        }),
-      );
+      const deps = apiObject.node.dependencies.map((a) => {
+        const id = a.node.id;
+        if (!map.has(id)) {
+          throw new Error(`Dependence: ${a.node.id} not found in manifests`);
+        }
+        return map.get(id)!;
+      });
+
+      let manifest = new Manifest(this, manifestName, {
+        ...options,
+        manifest: jsonManifest,
+        dependsOn: [...deps, ...manifestDeps],
+      });
+
+      this.manifests.push(manifest);
+      map.set(apiObject.node.id, manifest);
     });
-  }
 
-  public get app() {
-    return this._app;
+    dbg(
+      'manifests:',
+      this.manifests.map((m) => m.node.id),
+    );
   }
 
   public get manifests() {
     return this._manifests;
   }
+
+  public get chart() {
+    return this._chart;
+  }
 }
 
-export class Cdk8s<T extends Construct, Props> extends Cdk8sConstructBase {
-  constructor(
-    scope: Construct,
-    name: string,
-    t: { new (scope: Construct, id: string, props: Props): T },
-    options: Props & ManifestOption,
-  ) {
-    super(scope, name, options);
-
-    if (t instanceof Chart) {
-      new t(this.app, `${name}`, options as Props);
-    } else {
-      const chart = new Chart(this.app, `${name}-cdk8s-chart`);
-      new t(chart, `${name}`, options as Props);
+function validate(chart: Chart) {
+  const errors = [];
+  for (const child of chart.node.findAll()) {
+    const childErrors = child.node.validate();
+    for (const error of childErrors) {
+      errors.push(`[${child.node.path}] ${error}`);
     }
-
-    this.toCdktfManifests();
   }
+
+  if (errors.length > 0) {
+    throw new Error(
+      `Validation failed with the following errors:\n  ${errors.join('\n  ')}`,
+    );
+  }
+}
+
+function chartToKube(chart: Chart) {
+  return new DependencyGraph(chart.node)
+    .topology()
+    .filter((x) => x !== chart)
+    .map((x) => x as ApiObject);
 }
