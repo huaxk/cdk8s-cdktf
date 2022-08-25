@@ -6,6 +6,10 @@
       "type": "build"
     },
     {
+      "name": "@types/debug",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "version": "^27",
       "type": "build"
@@ -31,7 +35,7 @@
     },
     {
       "name": "cdk8s",
-      "version": "2.1.6",
+      "version": "2.3.74",
       "type": "build"
     },
     {
@@ -41,7 +45,7 @@
     },
     {
       "name": "constructs",
-      "version": "10.0.107",
+      "version": "10.1.65",
       "type": "build"
     },
     {
@@ -119,6 +123,10 @@
       "type": "build"
     },
     {
+      "name": "debug",
+      "type": "bundled"
+    },
+    {
       "name": "yaml",
       "version": "1.10.2",
       "type": "bundled"
@@ -130,7 +138,7 @@
     },
     {
       "name": "cdk8s",
-      "version": ">=2.1.6",
+      "version": ">=2.3.74",
       "type": "peer"
     },
     {
@@ -140,7 +148,7 @@
     },
     {
       "name": "constructs",
-      "version": "^10.0.107",
+      "version": "^10.1.65",
       "type": "peer"
     }
   ],
