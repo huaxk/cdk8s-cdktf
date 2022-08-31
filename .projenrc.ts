@@ -21,6 +21,7 @@ const project = new cdktf.ConstructLibraryCdktf({
   },
 });
 
+project.addKeywords('cdk8s');
 project.eslint?.addIgnorePattern('test/imports/');
 project.jest?.addIgnorePattern('test/imports');
 

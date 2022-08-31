@@ -72,6 +72,7 @@
   },
   "keywords": [
     "cdk",
+    "cdk8s",
     "cdktf"
   ],
   "main": "lib/index.js",
