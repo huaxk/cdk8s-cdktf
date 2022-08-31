@@ -6,10 +6,6 @@
       "type": "build"
     },
     {
-      "name": "@types/debug",
-      "type": "build"
-    },
-    {
       "name": "@types/jest",
       "version": "^27",
       "type": "build"
@@ -121,15 +117,6 @@
     {
       "name": "typescript",
       "type": "build"
-    },
-    {
-      "name": "debug",
-      "type": "bundled"
-    },
-    {
-      "name": "yaml",
-      "version": "1.10.2",
-      "type": "bundled"
     },
     {
       "name": "@cdktf/provider-kubernetes",

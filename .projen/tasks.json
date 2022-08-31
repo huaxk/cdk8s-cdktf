@@ -267,19 +267,19 @@
           "exec": "pnpm update npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs,yaml'"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@cdktf/provider-kubernetes,cdk8s,cdktf,constructs'"
         },
         {
           "exec": "pnpm i --no-frozen-lockfile"

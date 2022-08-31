@@ -2,10 +2,6 @@ import { Manifest } from '@cdktf/provider-kubernetes';
 import { ApiObject, App, Chart, ChartProps, DependencyGraph } from 'cdk8s';
 import { TerraformMetaArguments } from 'cdktf';
 import { Construct } from 'constructs';
-import debug from 'debug';
-
-const dbg = debug('cdk8s-cdktf');
-debug.enable('cdk8s-cdktf');
 
 type ManifestOption = TerraformMetaArguments;
 
@@ -28,16 +24,8 @@ export class Cdk8s extends Construct {
     const map: Map<string, Manifest> = new Map(); // map ApiObject to Manifest for transforming dependencies, the ApiObject node id as key, Manifest as value
 
     validate(this.chart);
-    dbg(
-      'all nodes:',
-      this.chart.node.findAll().map((x) => x.node.id),
-    );
 
     const apiObjects = chartToKube(this.chart);
-    dbg(
-      'apiobjects:',
-      apiObjects.map((x) => x.node.id),
-    );
 
     apiObjects.forEach((apiObject) => {
       const jsonManifest = apiObject.toJson();
@@ -70,11 +58,6 @@ export class Cdk8s extends Construct {
       this.manifests.push(manifest);
       map.set(apiObject.node.id, manifest);
     });
-
-    dbg(
-      'manifests:',
-      this.manifests.map((m) => m.node.id),
-    );
   }
 
   public get manifests() {
