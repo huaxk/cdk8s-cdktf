@@ -3,24 +3,47 @@ import { Chart } from 'cdk8s';
 import { Testing } from 'cdktf';
 import { Construct } from 'constructs';
 import { Cdk8s } from '../src';
-// import { Cdk8s } from '../';
-import { KubeDeployment, KubeNamespace } from './imports/k8s';
+import { DeploymentSpec, KubeDeployment, KubeNamespace } from './imports/k8s';
+import 'cdktf/lib/testing/adapters/jest';
+
+const nsName = 'my-namespace';
+const label = { app: 'test' };
+const containerName = 'hello-kubernetes';
+const imageName = 'paulbouwer/hello-kubernetes:1.7';
+const port = 8080;
+const deploymentSpec: DeploymentSpec = {
+  replicas: 1,
+  selector: { matchLabels: label },
+
+  template: {
+    metadata: { labels: label },
+    spec: {
+      containers: [
+        {
+          name: containerName,
+          image: imageName,
+          ports: [{ containerPort: port }],
+        },
+      ],
+    },
+  },
+};
 
 describe('CDK8sCdktf', () => {
-  test('Transform empty cdk8s Chart into cdktf plan', () => {
+  it('Transform empty cdk8s Chart into cdktf plan', () => {
     expect(
-      Testing.synthScope((scope) => {
+      Testing.synthScope((stack) => {
         new Cdk8s(
-          scope,
+          stack,
           'cdk8s-chart',
           class extends Chart {
-            constructor(scp: Construct, id: string) {
-              super(scp, id);
+            constructor(scope: Construct, id: string) {
+              super(scope, id);
             }
           },
         );
 
-        new KubernetesProvider(scope, 'kuberneters-provider');
+        new KubernetesProvider(stack, 'kuberneters-provider');
       }),
     ).toMatchInlineSnapshot(`
 "{
@@ -44,43 +67,24 @@ describe('CDK8sCdktf', () => {
 
   test('Transform cdk8s Chart which has one ApiObject into cdktf Manifest', () => {
     expect(
-      Testing.synthScope((scope) => {
-        const label = { app: 'test' };
+      Testing.synthScope((stack) => {
         new Cdk8s(
-          scope,
+          stack,
           'cdk8s-chart',
           class extends Chart {
-            constructor(scp: Construct, id: string) {
-              super(scp, id);
+            constructor(scope: Construct, id: string) {
+              super(scope, id);
 
               new KubeDeployment(this, 'deployment', {
-                spec: {
-                  replicas: 1,
-                  selector: { matchLabels: label },
-
-                  template: {
-                    metadata: { labels: label },
-                    spec: {
-                      containers: [
-                        {
-                          name: 'hello-kubernetes',
-                          image: 'paulbouwer/hello-kubernetes:1.7',
-                          ports: [{ containerPort: 8080 }],
-                        },
-                      ],
-                    },
-                  },
-                },
+                spec: deploymentSpec,
               });
-
-
             }
-          });
+          },
+        );
 
-
-        new KubernetesProvider(scope, 'kuberneters-provider');
-      })).
-      toMatchInlineSnapshot(`
+        new KubernetesProvider(stack, 'kuberneters-provider');
+      }),
+    ).toMatchInlineSnapshot(`
 "{
   \\"provider\\": {
     \\"kubernetes\\": [
@@ -145,70 +149,35 @@ describe('CDK8sCdktf', () => {
 
   test('Transform cdk8s Chart which has multiple ApiObjects with dependencies into cdktf Manifests', () => {
     expect(
-      Testing.synthScope((scope) => {
+      Testing.synthScope((stack) => {
         new Cdk8s(
-          scope,
+          stack,
           'cdk8s-chart',
           class extends Chart {
-            constructor(scp: Construct, id: string) {
-              super(scp, id);
-              const label = { app: 'test' };
+            constructor(scope: Construct, id: string) {
+              super(scope, id);
 
               const deploy = new KubeDeployment(this, 'deployment', {
-                spec: {
-                  replicas: 1,
-                  selector: { matchLabels: label },
-
-                  template: {
-                    metadata: { labels: label },
-                    spec: {
-                      containers: [
-                        {
-                          name: 'hello-kubernetes',
-                          image: 'paulbouwer/hello-kubernetes:1.7',
-                          ports: [{ containerPort: 8080 }],
-                        },
-                      ],
-                    },
-                  },
-                },
+                spec: deploymentSpec,
               });
 
-
-              const ns = new KubeNamespace(this, 'ns', { metadata: { name: 'my-namespace' } });
-
+              const ns = new KubeNamespace(this, 'ns', {
+                metadata: { name: nsName },
+              });
 
               const deploy2 = new KubeDeployment(this, 'deployment2', {
-                metadata: { namespace: 'my-namespace' },
-
-                spec: {
-                  replicas: 1,
-                  selector: { matchLabels: label },
-
-                  template: {
-                    metadata: { labels: label },
-                    spec: {
-                      containers: [
-                        {
-                          name: 'hello-kubernetes2',
-                          image: 'paulbouwer/hello-kubernetes:1.8',
-                          ports: [{ containerPort: 8080 }],
-                        },
-                      ],
-                    },
-                  },
-                },
+                metadata: { namespace: nsName },
+                spec: deploymentSpec,
               });
-
 
               deploy2.addDependency(ns, deploy);
             }
-          });
+          },
+        );
 
-
-        new KubernetesProvider(scope, 'kuberneter-provider');
-      })).
-      toMatchInlineSnapshot(`
+        new KubernetesProvider(stack, 'kuberneter-provider');
+      }),
+    ).toMatchInlineSnapshot(`
 "{
   \\"provider\\": {
     \\"kubernetes\\": [
@@ -285,8 +254,8 @@ describe('CDK8sCdktf', () => {
               \\"spec\\": {
                 \\"containers\\": [
                   {
-                    \\"image\\": \\"paulbouwer/hello-kubernetes:1.8\\",
-                    \\"name\\": \\"hello-kubernetes2\\",
+                    \\"image\\": \\"paulbouwer/hello-kubernetes:1.7\\",
+                    \\"name\\": \\"hello-kubernetes\\",
                     \\"ports\\": [
                       {
                         \\"containerPort\\": 8080
@@ -326,75 +295,38 @@ describe('CDK8sCdktf', () => {
 
   test('Transform cdk8s Chart which has multiple ApiObjects and resource dependencies into cdktf Manifests', () => {
     expect(
-      Testing.synthScope((scope) => {
-        const ns = new Namespace(scope, 'namespace', { metadata: { name: 'my-namespace' } });
-
+      Testing.synthScope((stack) => {
+        const ns = new Namespace(stack, 'namespace', {
+          metadata: { name: nsName },
+        });
 
         new Cdk8s(
-          scope,
+          stack,
           'cdk8s-chart',
           class extends Chart {
-            constructor(scp: Construct, id: string) {
-              super(scp, id);
-              const label = { app: 'test' };
+            constructor(scope: Construct, id: string) {
+              super(scope, id);
 
               const deploy = new KubeDeployment(this, 'deployment', {
-                metadata: { namespace: 'my-namespace' },
-
-                spec: {
-                  replicas: 1,
-                  selector: { matchLabels: label },
-
-                  template: {
-                    metadata: { labels: label },
-                    spec: {
-                      containers: [
-                        {
-                          name: 'hello-kubernetes',
-                          image: 'paulbouwer/hello-kubernetes:1.7',
-                          ports: [{ containerPort: 8080 }],
-                        },
-                      ],
-                    },
-                  },
-                },
+                metadata: { namespace: nsName },
+                spec: deploymentSpec,
               });
-
 
               const deploy2 = new KubeDeployment(this, 'deployment2', {
-                metadata: { namespace: 'my-namespace' },
-
-                spec: {
-                  replicas: 1,
-                  selector: { matchLabels: label },
-
-                  template: {
-                    metadata: { labels: label },
-                    spec: {
-                      containers: [
-                        {
-                          name: 'hello-kubernetes2',
-                          image: 'paulbouwer/hello-kubernetes:1.8',
-                          ports: [{ containerPort: 8080 }],
-                        },
-                      ],
-                    },
-                  },
-                },
+                metadata: { namespace: nsName },
+                spec: deploymentSpec,
               });
-
 
               deploy2.addDependency(deploy);
             }
           },
 
+          { dependsOn: [ns] },
+        );
 
-          { dependsOn: [ns] });
-
-
-        new KubernetesProvider(scope, 'kuberneter-provider');
-      })).
-      toMatchInlineSnapshot(`
+        new KubernetesProvider(stack, 'kuberneter-provider');
+      }),
+    ).toMatchInlineSnapshot(`
 "{
   \\"provider\\": {
     \\"kubernetes\\": [
@@ -473,8 +405,8 @@ describe('CDK8sCdktf', () => {
               \\"spec\\": {
                 \\"containers\\": [
                   {
-                    \\"image\\": \\"paulbouwer/hello-kubernetes:1.8\\",
-                    \\"name\\": \\"hello-kubernetes2\\",
+                    \\"image\\": \\"paulbouwer/hello-kubernetes:1.7\\",
+                    \\"name\\": \\"hello-kubernetes\\",
                     \\"ports\\": [
                       {
                         \\"containerPort\\": 8080
