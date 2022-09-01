@@ -91,6 +91,7 @@ function validate(chart: Chart) {
 function chartToKube(chart: Chart) {
   return new DependencyGraph(chart.node)
     .topology()
-    .filter((x) => x !== chart)
+    .filter((x) => x instanceof ApiObject)
+    .filter(x => Chart.of(x) === chart)
     .map((x) => x as ApiObject);
 }

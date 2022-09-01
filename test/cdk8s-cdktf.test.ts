@@ -6,6 +6,8 @@ import { Cdk8s } from '../src';
 import { DeploymentSpec, KubeDeployment, KubeNamespace } from './imports/k8s';
 import 'cdktf/lib/testing/adapters/jest';
 
+Testing.setupJest();
+
 const nsName = 'my-namespace';
 const label = { app: 'test' };
 const containerName = 'hello-kubernetes';
@@ -56,6 +58,25 @@ class TestChart extends Chart {
           },
         },
       },
+    });
+  }
+}
+
+class TestConstruct extends Construct {
+  constructor(scope: Construct, name: string) {
+    super(scope, name);
+
+    new KubeNamespace(this, 'ns', {
+      metadata: {
+        name: nsName,
+      },
+    });
+
+    new KubeDeployment(this, 'deployment', {
+      metadata: {
+        namespace: nsName,
+      },
+      spec: deploymentSpec,
     });
   }
 }
@@ -540,6 +561,83 @@ describe('CDK8sCdktf', () => {
       \\"kubernetes\\": {
         \\"source\\": \\"kubernetes\\",
         \\"version\\": \\"2.12.1\\"
+      }
+    }
+  }
+}"
+`);
+  });
+
+  test('Transform Chart with custom Construct', () => {
+    expect(
+      Testing.synthScope((stack) => {
+        new Cdk8s(
+          stack,
+          'cdk8s-cdktf',
+          class extends Chart {
+            constructor(scope: Construct, id: string) {
+              super(scope, id);
+
+              new TestConstruct(this, 'test-construct');
+            }
+          });
+
+
+      })).
+      toMatchInlineSnapshot(`
+"{
+  \\"resource\\": {
+    \\"kubernetes_manifest\\": {
+      \\"cdk8s-cdktf_cdk8s-cdktf-apps--v1-Deployment-cdk8s-cdktf-test-construct-deployment-c85628fa-my-namespace_4826EDAB\\": {
+        \\"depends_on\\": [
+        ],
+        \\"manifest\\": {
+          \\"apiVersion\\": \\"apps/v1\\",
+          \\"kind\\": \\"Deployment\\",
+          \\"metadata\\": {
+            \\"name\\": \\"cdk8s-cdktf-test-construct-deployment-c85628fa\\",
+            \\"namespace\\": \\"my-namespace\\"
+          },
+          \\"spec\\": {
+            \\"replicas\\": 1,
+            \\"selector\\": {
+              \\"matchLabels\\": {
+                \\"app\\": \\"test\\"
+              }
+            },
+            \\"template\\": {
+              \\"metadata\\": {
+                \\"labels\\": {
+                  \\"app\\": \\"test\\"
+                }
+              },
+              \\"spec\\": {
+                \\"containers\\": [
+                  {
+                    \\"image\\": \\"paulbouwer/hello-kubernetes:1.7\\",
+                    \\"name\\": \\"hello-kubernetes\\",
+                    \\"ports\\": [
+                      {
+                        \\"containerPort\\": 8080
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      \\"cdk8s-cdktf_cdk8s-cdktf-v1-Namespace-my-namespace_5E2F85DE\\": {
+        \\"depends_on\\": [
+        ],
+        \\"manifest\\": {
+          \\"apiVersion\\": \\"v1\\",
+          \\"kind\\": \\"Namespace\\",
+          \\"metadata\\": {
+            \\"name\\": \\"my-namespace\\"
+          }
+        }
       }
     }
   }
