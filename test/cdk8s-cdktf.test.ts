@@ -1,5 +1,5 @@
 import { KubernetesProvider, Namespace } from '@cdktf/provider-kubernetes';
-import { Chart } from 'cdk8s';
+import { Chart, ChartProps } from 'cdk8s';
 import { Testing } from 'cdktf';
 import { Construct } from 'constructs';
 import { Cdk8s } from '../src';
@@ -28,6 +28,37 @@ const deploymentSpec: DeploymentSpec = {
     },
   },
 };
+
+interface TestChartProps extends ChartProps {
+  name: string;
+  image: string;
+  port: number;
+}
+
+class TestChart extends Chart {
+  constructor(scope: Construct, id: string, props: TestChartProps) {
+    super(scope, id);
+
+    new KubeDeployment(this, 'deployment', {
+      spec: {
+        replicas: 1,
+        selector: { matchLabels: label },
+        template: {
+          metadata: { labels: label },
+          spec: {
+            containers: [
+              {
+                name: props.name,
+                image: props.image,
+                ports: [{ containerPort: props.port }],
+              },
+            ],
+          },
+        },
+      },
+    });
+  }
+}
 
 describe('CDK8sCdktf', () => {
   it('Transform empty cdk8s Chart into cdktf plan', () => {
@@ -321,7 +352,7 @@ describe('CDK8sCdktf', () => {
             }
           },
 
-          { dependsOn: [ns] },
+          { manifestOptions: { dependsOn: [ns] } },
         );
 
         new KubernetesProvider(stack, 'kuberneter-provider');
@@ -424,6 +455,82 @@ describe('CDK8sCdktf', () => {
       \\"namespace\\": {
         \\"metadata\\": {
           \\"name\\": \\"my-namespace\\"
+        }
+      }
+    }
+  },
+  \\"terraform\\": {
+    \\"required_providers\\": {
+      \\"kubernetes\\": {
+        \\"source\\": \\"kubernetes\\",
+        \\"version\\": \\"2.12.1\\"
+      }
+    }
+  }
+}"
+`);
+  });
+
+  test('Transform Chart with custom options', () => {
+    expect(
+      Testing.synthScope((stack) => {
+        new Cdk8s<TestChartProps>(stack, 'cdk8s-cdktf', TestChart, {
+          chartOptions: {
+            name: containerName,
+            image: imageName,
+            port: port,
+          },
+        });
+
+        new KubernetesProvider(stack, 'kuberneter-provider');
+      }),
+    ).toMatchInlineSnapshot(`
+"{
+  \\"provider\\": {
+    \\"kubernetes\\": [
+      {
+      }
+    ]
+  },
+  \\"resource\\": {
+    \\"kubernetes_manifest\\": {
+      \\"cdk8s-cdktf_cdk8s-cdktf-apps--v1-Deployment-cdk8s-cdktf-deployment-c858d2ef_AA3EB4AA\\": {
+        \\"depends_on\\": [
+        ],
+        \\"manifest\\": {
+          \\"apiVersion\\": \\"apps/v1\\",
+          \\"kind\\": \\"Deployment\\",
+          \\"metadata\\": {
+            \\"name\\": \\"cdk8s-cdktf-deployment-c858d2ef\\"
+          },
+          \\"spec\\": {
+            \\"replicas\\": 1,
+            \\"selector\\": {
+              \\"matchLabels\\": {
+                \\"app\\": \\"test\\"
+              }
+            },
+            \\"template\\": {
+              \\"metadata\\": {
+                \\"labels\\": {
+                  \\"app\\": \\"test\\"
+                }
+              },
+              \\"spec\\": {
+                \\"containers\\": [
+                  {
+                    \\"image\\": \\"paulbouwer/hello-kubernetes:1.7\\",
+                    \\"name\\": \\"hello-kubernetes\\",
+                    \\"ports\\": [
+                      {
+                        \\"containerPort\\": 8080
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
         }
       }
     }

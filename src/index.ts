@@ -5,9 +5,12 @@ import { Construct } from 'constructs';
 
 type ManifestOption = TerraformMetaArguments;
 
-export interface ChartManifestOptions extends ChartProps, ManifestOption {}
+export interface IChartManifestOptions<Props extends ChartProps> {
+  chartOptions?: Props;
+  manifestOptions?: ManifestOption;
+}
 
-export class Cdk8s extends Construct {
+export class Cdk8s<Props extends ChartProps> extends Construct {
   private _manifests: Manifest[] = [];
   private _chart: Chart;
 
@@ -15,11 +18,11 @@ export class Cdk8s extends Construct {
     scope: Construct,
     name: string,
     chartType: typeof Chart,
-    options?: ChartManifestOptions,
+    options?: IChartManifestOptions<Props>,
   ) {
     super(scope, name);
 
-    this._chart = new chartType(new App(), name, options as ChartProps);
+    this._chart = new chartType(new App(), name, options?.chartOptions);
 
     const map: Map<string, Manifest> = new Map(); // map ApiObject to Manifest for transforming dependencies, the ApiObject node id as key, Manifest as value
 
@@ -30,7 +33,7 @@ export class Cdk8s extends Construct {
     apiObjects.forEach((apiObject) => {
       const jsonManifest = apiObject.toJson();
 
-      const manifestDeps = options?.dependsOn || [];
+      const manifestDeps = options?.manifestOptions?.dependsOn || [];
 
       const type = `${jsonManifest.apiVersion}-${jsonManifest.kind}`;
       const namespaceSuffix = jsonManifest.metadata.namespace
@@ -50,7 +53,7 @@ export class Cdk8s extends Construct {
       });
 
       let manifest = new Manifest(this, manifestName, {
-        ...options,
+        ...options?.manifestOptions,
         manifest: jsonManifest,
         dependsOn: [...deps, ...manifestDeps],
       });

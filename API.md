@@ -9,7 +9,7 @@
 ```typescript
 import { Cdk8s } from 'cdk8s-cdktf'
 
-new Cdk8s(scope: Construct, name: string, chartType: Chart, options?: ChartManifestOptions)
+new Cdk8s(scope: Construct, name: string, chartType: Chart, options?: IChartManifestOptions)
 ```
 
 | **Name** | **Type** | **Description** |
@@ -17,7 +17,7 @@ new Cdk8s(scope: Construct, name: string, chartType: Chart, options?: ChartManif
 | <code><a href="#cdk8s-cdktf.Cdk8s.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
 | <code><a href="#cdk8s-cdktf.Cdk8s.Initializer.parameter.name">name</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#cdk8s-cdktf.Cdk8s.Initializer.parameter.chartType">chartType</a></code> | <code>cdk8s.Chart</code> | *No description.* |
-| <code><a href="#cdk8s-cdktf.Cdk8s.Initializer.parameter.options">options</a></code> | <code><a href="#cdk8s-cdktf.ChartManifestOptions">ChartManifestOptions</a></code> | *No description.* |
+| <code><a href="#cdk8s-cdktf.Cdk8s.Initializer.parameter.options">options</a></code> | <code><a href="#cdk8s-cdktf.IChartManifestOptions">IChartManifestOptions</a></code> | *No description.* |
 
 ---
 
@@ -41,7 +41,7 @@ new Cdk8s(scope: Construct, name: string, chartType: Chart, options?: ChartManif
 
 ##### `options`<sup>Optional</sup> <a name="options" id="cdk8s-cdktf.Cdk8s.Initializer.parameter.options"></a>
 
-- *Type:* <a href="#cdk8s-cdktf.ChartManifestOptions">ChartManifestOptions</a>
+- *Type:* <a href="#cdk8s-cdktf.IChartManifestOptions">IChartManifestOptions</a>
 
 ---
 
@@ -144,132 +144,41 @@ public readonly manifests: Manifest[];
 ---
 
 
-## Structs <a name="Structs" id="Structs"></a>
 
-### ChartManifestOptions <a name="ChartManifestOptions" id="cdk8s-cdktf.ChartManifestOptions"></a>
 
-#### Initializer <a name="Initializer" id="cdk8s-cdktf.ChartManifestOptions.Initializer"></a>
+## Protocols <a name="Protocols" id="Protocols"></a>
 
-```typescript
-import { ChartManifestOptions } from 'cdk8s-cdktf'
+### IChartManifestOptions <a name="IChartManifestOptions" id="cdk8s-cdktf.IChartManifestOptions"></a>
 
-const chartManifestOptions: ChartManifestOptions = { ... }
-```
+- *Implemented By:* <a href="#cdk8s-cdktf.IChartManifestOptions">IChartManifestOptions</a>
+
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.labels">labels</a></code> | <code>{[ key: string ]: string}</code> | Labels to apply to all resources in this chart. |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.namespace">namespace</a></code> | <code>string</code> | The default namespace for all objects defined in this chart (directly or indirectly). |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.connection">connection</a></code> | <code>cdktf.ISSHProvisionerConnection \| cdktf.IWinrmProvisionerConnection</code> | *No description.* |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.count">count</a></code> | <code>number</code> | *No description.* |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.dependsOn">dependsOn</a></code> | <code>cdktf.ITerraformDependable[]</code> | *No description.* |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.forEach">forEach</a></code> | <code>cdktf.ITerraformIterator</code> | *No description.* |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.lifecycle">lifecycle</a></code> | <code>cdktf.TerraformResourceLifecycle</code> | *No description.* |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.provider">provider</a></code> | <code>cdktf.TerraformProvider</code> | *No description.* |
-| <code><a href="#cdk8s-cdktf.ChartManifestOptions.property.provisioners">provisioners</a></code> | <code>cdktf.IFileProvisioner \| cdktf.ILocalExecProvisioner \| cdktf.IRemoteExecProvisioner[]</code> | *No description.* |
+| <code><a href="#cdk8s-cdktf.IChartManifestOptions.property.chartOptions">chartOptions</a></code> | <code>cdk8s.ChartProps</code> | *No description.* |
+| <code><a href="#cdk8s-cdktf.IChartManifestOptions.property.manifestOptions">manifestOptions</a></code> | <code>cdktf.TerraformMetaArguments</code> | *No description.* |
 
 ---
 
-##### `labels`<sup>Optional</sup> <a name="labels" id="cdk8s-cdktf.ChartManifestOptions.property.labels"></a>
+##### `chartOptions`<sup>Optional</sup> <a name="chartOptions" id="cdk8s-cdktf.IChartManifestOptions.property.chartOptions"></a>
 
 ```typescript
-public readonly labels: {[ key: string ]: string};
+public readonly chartOptions: ChartProps;
 ```
 
-- *Type:* {[ key: string ]: string}
-- *Default:* no common labels
-
-Labels to apply to all resources in this chart.
+- *Type:* cdk8s.ChartProps
 
 ---
 
-##### `namespace`<sup>Optional</sup> <a name="namespace" id="cdk8s-cdktf.ChartManifestOptions.property.namespace"></a>
+##### `manifestOptions`<sup>Optional</sup> <a name="manifestOptions" id="cdk8s-cdktf.IChartManifestOptions.property.manifestOptions"></a>
 
 ```typescript
-public readonly namespace: string;
+public readonly manifestOptions: TerraformMetaArguments;
 ```
 
-- *Type:* string
-- *Default:* no namespace is synthesized (usually this implies "default")
-
-The default namespace for all objects defined in this chart (directly or indirectly).
-
-This namespace will only apply to objects that don't have a
-`namespace` explicitly defined for them.
+- *Type:* cdktf.TerraformMetaArguments
 
 ---
-
-##### `connection`<sup>Optional</sup> <a name="connection" id="cdk8s-cdktf.ChartManifestOptions.property.connection"></a>
-
-```typescript
-public readonly connection: ISSHProvisionerConnection | IWinrmProvisionerConnection;
-```
-
-- *Type:* cdktf.ISSHProvisionerConnection | cdktf.IWinrmProvisionerConnection
-
----
-
-##### `count`<sup>Optional</sup> <a name="count" id="cdk8s-cdktf.ChartManifestOptions.property.count"></a>
-
-```typescript
-public readonly count: number;
-```
-
-- *Type:* number
-
----
-
-##### `dependsOn`<sup>Optional</sup> <a name="dependsOn" id="cdk8s-cdktf.ChartManifestOptions.property.dependsOn"></a>
-
-```typescript
-public readonly dependsOn: ITerraformDependable[];
-```
-
-- *Type:* cdktf.ITerraformDependable[]
-
----
-
-##### `forEach`<sup>Optional</sup> <a name="forEach" id="cdk8s-cdktf.ChartManifestOptions.property.forEach"></a>
-
-```typescript
-public readonly forEach: ITerraformIterator;
-```
-
-- *Type:* cdktf.ITerraformIterator
-
----
-
-##### `lifecycle`<sup>Optional</sup> <a name="lifecycle" id="cdk8s-cdktf.ChartManifestOptions.property.lifecycle"></a>
-
-```typescript
-public readonly lifecycle: TerraformResourceLifecycle;
-```
-
-- *Type:* cdktf.TerraformResourceLifecycle
-
----
-
-##### `provider`<sup>Optional</sup> <a name="provider" id="cdk8s-cdktf.ChartManifestOptions.property.provider"></a>
-
-```typescript
-public readonly provider: TerraformProvider;
-```
-
-- *Type:* cdktf.TerraformProvider
-
----
-
-##### `provisioners`<sup>Optional</sup> <a name="provisioners" id="cdk8s-cdktf.ChartManifestOptions.property.provisioners"></a>
-
-```typescript
-public readonly provisioners: IFileProvisioner | ILocalExecProvisioner | IRemoteExecProvisioner[];
-```
-
-- *Type:* cdktf.IFileProvisioner | cdktf.ILocalExecProvisioner | cdktf.IRemoteExecProvisioner[]
-
----
-
-
 
