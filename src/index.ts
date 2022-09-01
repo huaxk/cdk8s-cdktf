@@ -31,17 +31,6 @@ export class Cdk8s<Props extends ChartProps> extends Construct {
     apiObjects.forEach((apiObject) => {
       const jsonManifest = apiObject.toJson();
 
-      const manifestDeps = options?.manifestOptions?.dependsOn || [];
-
-      const type = `${jsonManifest.apiVersion}-${jsonManifest.kind}`;
-      const namespaceSuffix = jsonManifest.metadata.namespace
-        ? '-' + jsonManifest.metadata.namespace
-        : '';
-      const uniqueId = `${
-        jsonManifest.metadata.name || jsonManifest.metadata.generatename
-      }${namespaceSuffix}`;
-      const manifestName = `${name}-${type}-${uniqueId}`;
-
       const deps = apiObject.node.dependencies.map((a) => {
         const id = a.node.id;
         if (!map.has(id)) {
@@ -50,7 +39,9 @@ export class Cdk8s<Props extends ChartProps> extends Construct {
         return map.get(id)!;
       });
 
-      let manifest = new Manifest(this, manifestName, {
+      const manifestDeps = options?.manifestOptions?.dependsOn || [];
+      const manifestName = this.generateUniqueId(apiObject);
+      const manifest = new Manifest(this, manifestName, {
         ...options?.manifestOptions,
         manifest: jsonManifest,
         dependsOn: [...deps, ...manifestDeps],
@@ -59,6 +50,17 @@ export class Cdk8s<Props extends ChartProps> extends Construct {
       this.manifests.push(manifest);
       map.set(apiObject.node.id, manifest);
     });
+  }
+
+  public generateUniqueId(apiObject: ApiObject) {
+    const vk = `${apiObject.apiVersion}-${apiObject.kind}`;
+    const uniqueId =
+      apiObject.metadata.name ||
+      Chart.of(apiObject).generateObjectName(apiObject);
+    const nsSuffix = apiObject.metadata.namespace
+      ? `-${apiObject.metadata.namespace}`
+      : '';
+    return `${this.name}-${vk}-${uniqueId}${nsSuffix}`;
   }
 }
 
