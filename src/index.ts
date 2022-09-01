@@ -11,23 +11,21 @@ export interface IChartManifestOptions<Props extends ChartProps> {
 }
 
 export class Cdk8s<Props extends ChartProps> extends Construct {
-  private _manifests: Manifest[] = [];
-  private _chart: Chart;
+  public manifests: Array<Manifest> = [];
+  public chart: Chart;
 
   constructor(
     scope: Construct,
-    name: string,
+    public name: string,
     chartType: typeof Chart,
     options?: IChartManifestOptions<Props>,
   ) {
     super(scope, name);
 
-    this._chart = new chartType(new App(), name, options?.chartOptions);
-
     const map: Map<string, Manifest> = new Map(); // map ApiObject to Manifest for transforming dependencies, the ApiObject node id as key, Manifest as value
 
+    this.chart = new chartType(new App(), this.name, options?.chartOptions);
     validate(this.chart);
-
     const apiObjects = chartToKube(this.chart);
 
     apiObjects.forEach((apiObject) => {
@@ -62,14 +60,6 @@ export class Cdk8s<Props extends ChartProps> extends Construct {
       map.set(apiObject.node.id, manifest);
     });
   }
-
-  public get manifests() {
-    return this._manifests;
-  }
-
-  public get chart() {
-    return this._chart;
-  }
 }
 
 function validate(chart: Chart) {
@@ -92,6 +82,6 @@ function chartToKube(chart: Chart) {
   return new DependencyGraph(chart.node)
     .topology()
     .filter((x) => x instanceof ApiObject)
-    .filter(x => Chart.of(x) === chart)
+    .filter((x) => Chart.of(x) === chart)
     .map((x) => x as ApiObject);
 }
