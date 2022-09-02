@@ -11,7 +11,7 @@ const project = new cdktf.ConstructLibraryCdktf({
   projenrcTs: true,
   repositoryUrl: 'https://github.com/huaxk/cdk8s-cdktf.git',
 
-  devDeps: ['cdk8s-cli'],
+  devDeps: ['cdk8s-cli', 'expect', 'jsonpath-plus'],
   peerDeps: ['@cdktf/provider-kubernetes@^2.0.0', 'cdk8s@>=2.3.74'],
   description:
     'A compatability layer for transforming cdk8s constructs to kubernetes manifests within Terraform CDK.',
