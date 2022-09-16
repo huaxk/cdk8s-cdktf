@@ -62,7 +62,7 @@
       "type": "build"
     },
     {
-      "name": "expect",
+      "name": "jest-json-extend",
       "type": "build"
     },
     {
@@ -93,10 +93,6 @@
     },
     {
       "name": "json-schema",
-      "type": "build"
-    },
-    {
-      "name": "jsonpath-plus",
       "type": "build"
     },
     {
