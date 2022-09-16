@@ -11,16 +11,18 @@ export interface IChartManifestOptions<Props extends ChartProps> {
 }
 
 export class Cdk8s<Props extends ChartProps> extends Construct {
+  public name: string;
   public manifests: Array<Manifest> = [];
   public chart: Chart;
 
   constructor(
     scope: Construct,
-    public name: string,
+    name: string,
     chartType: typeof Chart,
     options?: IChartManifestOptions<Props>,
   ) {
     super(scope, name);
+    this.name = name;
 
     const map: Map<string, Manifest> = new Map(); // map ApiObject to Manifest for transforming dependencies, the ApiObject node id as key, Manifest as value
 
@@ -57,9 +59,8 @@ export class Cdk8s<Props extends ChartProps> extends Construct {
     const uniqueId =
       apiObject.metadata.name ||
       Chart.of(apiObject).generateObjectName(apiObject);
-    const nsSuffix = apiObject.metadata.namespace
-      ? `-${apiObject.metadata.namespace}`
-      : '';
+    const ns = apiObject.metadata.namespace;
+    const nsSuffix = ns ? `-${ns}` : '';
     return `${this.name}-${vk}-${uniqueId}${nsSuffix}`;
   }
 }
