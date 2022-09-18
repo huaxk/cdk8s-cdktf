@@ -50,6 +50,7 @@ new Cdk8s(scope: Construct, name: string, chartType: Chart, options?: IChartMani
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#cdk8s-cdktf.Cdk8s.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#cdk8s-cdktf.Cdk8s.generateUniqueId">generateUniqueId</a></code> | *No description.* |
 
 ---
 
@@ -60,6 +61,18 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `generateUniqueId` <a name="generateUniqueId" id="cdk8s-cdktf.Cdk8s.generateUniqueId"></a>
+
+```typescript
+public generateUniqueId(apiObject: ApiObject): string
+```
+
+###### `apiObject`<sup>Required</sup> <a name="apiObject" id="cdk8s-cdktf.Cdk8s.generateUniqueId.parameter.apiObject"></a>
+
+- *Type:* cdk8s.ApiObject
+
+---
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -108,6 +121,7 @@ Any object.
 | <code><a href="#cdk8s-cdktf.Cdk8s.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#cdk8s-cdktf.Cdk8s.property.chart">chart</a></code> | <code>cdk8s.Chart</code> | *No description.* |
 | <code><a href="#cdk8s-cdktf.Cdk8s.property.manifests">manifests</a></code> | <code>@cdktf/provider-kubernetes.Manifest[]</code> | *No description.* |
+| <code><a href="#cdk8s-cdktf.Cdk8s.property.name">name</a></code> | <code>string</code> | *No description.* |
 
 ---
 
@@ -140,6 +154,16 @@ public readonly manifests: Manifest[];
 ```
 
 - *Type:* @cdktf/provider-kubernetes.Manifest[]
+
+---
+
+##### `name`<sup>Required</sup> <a name="name" id="cdk8s-cdktf.Cdk8s.property.name"></a>
+
+```typescript
+public readonly name: string;
+```
+
+- *Type:* string
 
 ---
 
