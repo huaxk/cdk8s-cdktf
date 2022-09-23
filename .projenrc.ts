@@ -10,6 +10,7 @@ const project = new cdktf.ConstructLibraryCdktf({
   name: 'cdk8s-cdktf',
   packageManager: javascript.NodePackageManager.PNPM,
   projenrcTs: true,
+  projenVersion: '^0.62.17',
   repositoryUrl: 'https://github.com/huaxk/cdk8s-cdktf.git',
 
   devDeps: ['cdk8s-cli', 'jest-json-extend'],
@@ -36,27 +37,5 @@ const importTask = project.addTask('import', {
   exec: 'cd ./test && cdk8s import k8s --language typescript',
 });
 project.testTask.prependSpawn(importTask);
-
-project.release?.publisher.publishToNpm({
-  prePublishSteps: [
-    {
-      name: 'Prepare Repository',
-      run: 'mv dist .repo',
-    },
-    {
-      name: 'Install Dependencies',
-      run: 'cd .repo && npm i --frozen-lockfile',
-    },
-    {
-      name: 'Create js artifact',
-      run: 'cd .repo && npx projen package:js',
-    },
-    {
-      name: 'Collect js Artifact',
-      run: 'mv .repo/dist dist',
-    },
-  ],
-  registry: 'registry.npmjs.org',
-});
 
 project.synth();

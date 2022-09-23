@@ -20,9 +20,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
+        uses: pnpm/action-setup@v2.2.2
         with:
-          version: 6.14.7
+          version: "7"
       - name: Install dependencies
         run: pnpm i --no-frozen-lockfile
       - name: build
@@ -92,6 +92,10 @@ jobs:
         with:
           name: build-artifact
           path: dist
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: "7"
       - name: Prepare Repository
         run: mv dist .repo
       - name: Install Dependencies
